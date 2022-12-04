@@ -31,8 +31,8 @@ RUN echo "\ndeb http://snapshot.debian.org/archive/debian/20210519T212015Z/ bull
     && dpkg -i /adwaita-icon-theme.deb \
     # Install dependencies
     && apt-get update \
-    && apt-get install -y --no-install-recommends chromium=104.0.5112.79-1 chromium-common=104.0.5112.79-1 \
-        chromium-driver=104.0.5112.79-1 xvfb \
+    && apt-get install -y --no-install-recommends chromium=104.0.5112.79-1~deb11u1 chromium-common=104.0.5112.79-1~deb11u1 \
+        chromium-driver=104.0.5112.79-1~deb11u1 xvfb \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
