@@ -220,11 +220,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.cookies = driver.get_cookies()
+    challenge_res.userAgent = utils.get_user_agent(driver)
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
         challenge_res.response = driver.page_source
-        challenge_res.userAgent = utils.get_user_agent(driver)
 
     res.result = challenge_res
     return res

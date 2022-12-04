@@ -18,7 +18,6 @@ FROM python:3.10-slim-bullseye
 COPY --from=builder /*.deb /
 
 # Install dependencies and create flaresolverr user
-# We have to install and old version of Chromium because its not working in Raspberry Pi / ARM
 # You can test Chromium running this command inside the container:
 #    xvfb-run -s "-screen 0 1600x1200x24" chromium --no-sandbox
 # The error traces is like this: "*** stack smashing detected ***: terminated"
@@ -32,8 +31,8 @@ RUN echo "\ndeb http://snapshot.debian.org/archive/debian/20210519T212015Z/ bull
     && dpkg -i /adwaita-icon-theme.deb \
     # Install dependencies
     && apt-get update \
-    && apt-get install -y --no-install-recommends chromium=89.0.4389.114-1 chromium-common=89.0.4389.114-1 \
-        chromium-driver=89.0.4389.114-1 xvfb \
+    && apt-get install -y --no-install-recommends chromium=104.0.5112.79-1 chromium-common=104.0.5112.79-1 \
+        chromium-driver=104.0.5112.79-1 xvfb \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
