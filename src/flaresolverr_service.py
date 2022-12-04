@@ -25,7 +25,7 @@ CHALLENGE_SELECTORS = [
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info'
 ]
-SHORT_TIMEOUT = 5
+SHORT_TIMEOUT = 10
 
 
 def test_browser_installation():
