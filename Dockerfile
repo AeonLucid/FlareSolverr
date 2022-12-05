@@ -32,7 +32,9 @@ RUN pip install -r requirements.txt && \
 
 # Create flaresolverr user
 RUN useradd --home-dir /app --shell /bin/sh flaresolverr && \
-    chown -R flaresolverr:flaresolverr .
+    chown -R flaresolverr:flaresolverr . && \
+    mkdir /screenshots && \
+    chown -R flaresolverr:flaresolverr /screenshots
 
 USER flaresolverr
 

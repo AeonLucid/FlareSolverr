@@ -1,2 +1,4 @@
 docker build -t flaresolverr .
-docker run --name=flaresolverr -p 8191:8191 -e LOG_LEVEL=debug -it flaresolverr
+docker rm flaresolverr
+docker volume rm screenshots
+docker run --name=flaresolverr -v screenshots:/screenshots -p 8191:8191 -e LOG_LEVEL=debug -it flaresolverr
