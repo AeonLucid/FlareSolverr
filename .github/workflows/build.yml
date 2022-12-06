@@ -19,7 +19,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/v3beta'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
