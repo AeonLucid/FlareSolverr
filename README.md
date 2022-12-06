@@ -35,7 +35,7 @@ docker run -d \
   -e LOG_LEVEL=info \
   -e 2CAPTCHA_KEY=KEY \
   --restart unless-stopped \
-  ghcr.io/aeonlucid/flaresolverr:v3beta
+  ghcr.io/aeonlucid/flaresolverr:v3.0.0
 ```
 
 If your host OS is Debian, make sure `libseccomp2` version is 2.5.x. You can check the version with `sudo apt-cache policy libseccomp2` 
