@@ -5,8 +5,9 @@ on:
     branches: v3beta
     paths:
       - 'src/**'
-      - 'requirements.txt'
       - '.github/workflows/build.yml'
+      - 'requirements.txt'
+      - 'package.json'
       - 'Dockerfile'
     tags:
       - 'v*.*.*'
