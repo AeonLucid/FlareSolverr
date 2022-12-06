@@ -69,11 +69,12 @@ curl -L -X POST 'http://localhost:8191/v1' \
 
 #### + `request.get`
 
-| Parameter         | Notes                                                                                                                                                                                                                                                                                                                                        |
-|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url               | Mandatory                                                                                                                                                                                                                                                                                                                                    |
-| maxTimeout        | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.                                                                                                                                                                                                                                                           |
-| returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.                                                                                                                                                                                                                       |
+| Parameter         | Notes                                                                                                                     |
+|-------------------|---------------------------------------------------------------------------------------------------------------------------|
+| url               | Mandatory                                                                                                                 |
+| maxTimeout        | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.                                        |
+| returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.    |
+| cookies           | Optional. Will be used by the headless browser. Follow [this](https://vanilla.aslushnikov.com/?Network.setCookie) format. |
 
 :warning: If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
 
