@@ -6,6 +6,7 @@ STATUS_ERROR = "error"
 class ChallengeResolutionResultT:
     url: str = None
     status: int = None
+    captcha_type: str = None
     headers: list = None
     response: str = None
     cookies: list = None

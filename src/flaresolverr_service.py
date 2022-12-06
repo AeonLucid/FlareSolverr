@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of
+from twocaptcha import TwoCaptcha
 
 from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
     HealthResponse, STATUS_OK, STATUS_ERROR
@@ -166,6 +167,34 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
+    driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+        'source': """
+        function onHCaptchaLoaded() {
+          console.log(hcaptcha);
+        
+          let origFunc = hcaptcha.render;
+        
+          hcaptcha.render = function (a, b) {
+            window.flareCallback = b.callback;
+        
+            origFunc(a, b);
+          };
+        }
+        
+        var hasHCaptchaLoaded = false;
+        
+        function checkHCaptcha() {
+            if (window.hcaptcha !== undefined) {
+              onHCaptchaLoaded();
+            } else {
+              requestAnimationFrame(checkHCaptcha);
+            }
+        };
+        
+        requestAnimationFrame(checkHCaptcha);
+        """
+    })
+
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
@@ -195,6 +224,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             challenge_found = True
             logging.info("Challenge detected. Selector found: " + selector)
             break
+
+    captcha_type = None
 
     if challenge_found:
         while True:
@@ -242,6 +273,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
+    challenge_res.captcha_type = captcha_type
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
 
@@ -313,18 +345,25 @@ def _captcha_solve(driver: WebDriver, captcha_type: str) -> bool:
         c_iframe_src = c_iframe.get_attribute('src')
 
         # Find hCaptcha sitekey.
-        sitekey = re.findall(r"sitekey=([a-z0-9-]+)&", c_iframe_src)
+        sitekey = re.findall(r"sitekey=([a-z0-9-]+)&", c_iframe_src)[0]
         logging.debug('[hCaptcha] Found sitekey %s' % sitekey)
 
         # Find element in which the result goes.
         result_el = driver.find_element(By.CSS_SELECTOR, 'textarea[name="h-captcha-response"]')
         logging.debug('[hCaptcha] Found hcaptcha response textarea with id %s' % result_el.get_attribute('id'))
 
-        # Set captcha result.
-        driver.execute_script('document.getElementById("%s").value = "%s";' % (result_el.get_attribute('id'), 'Test123'))
+        # Solve captcha.
+        logging.debug('[hCaptcha] Sitekey %s' % sitekey)
+        logging.debug('[hCaptcha] Url %s' % driver.current_url)
 
-        # Submit form.
-        driver.execute_script('document.getElementById("challenge-form").submit();')
+        result_code = _captcha_solver_external(sitekey, driver.current_url)
+
+        logging.debug('[hCaptcha] External result %s' % result_code)
+
+        # Set captcha result.
+        logging.debug('[hCaptcha] Calling callback')
+        driver.execute_script('window.flareCallback("%s");' % result_code)
+        logging.debug('[hCaptcha] Called callback')
 
         return True
     elif captcha_type == 'turnstile':
@@ -363,6 +402,27 @@ def _captcha_solve(driver: WebDriver, captcha_type: str) -> bool:
         return True
 
     return False
+
+
+def _captcha_solver_external(sitekey: str, url: str):
+    two_captcha_key = os.environ.get('2CAPTCHA_KEY', None)
+
+    if two_captcha_key is not None:
+        solver = TwoCaptcha(**{
+            'server': '2captcha.com',
+            'apiKey': two_captcha_key,
+            'defaultTimeout': 120,
+            'recaptchaTimeout': 600,
+            'pollingInterval': 5,
+        })
+
+        logging.debug('[hCaptcha] Solving with 2Captcha')
+
+        result = solver.hcaptcha(sitekey=sitekey, url=url)
+
+        return result['code']
+
+    raise Exception('No hCaptcha solver was configured')
 
 
 def _save_debug_info(driver):
