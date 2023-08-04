@@ -45,6 +45,8 @@ CHALLENGE_SELECTORS = [
     'td.info #js_info',
     # Fairlane / pararius.com
     'div.vc div.text-box h2'
+    # Under attack
+    '.cf-im-under-attack',
 ]
 SHORT_TIMEOUT = 1
 SESSIONS_STORAGE = SessionsStorage()
